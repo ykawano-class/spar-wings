@@ -11,4 +11,5 @@ dependencies {
 	
 	testCompile "com.fasterxml.jackson.core:jackson-databind"
 	testCompile "com.jayway.jsonpath:json-path-assert:2.4.0"
+	testCompile "org.skyscreamer:jsonassert:1.5.0"
 }
