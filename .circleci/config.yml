@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /app
     docker:
-      - image: java:openjdk-8-jdk
+      - image: classmethod/openjdk-with-git:8-jdk
       - image: redis:2.8.23
     environment:
       _JAVA_OPTIONS: -Xmx3G
@@ -182,7 +182,7 @@ jobs:
 
       - deploy:
           name: Deploy bintray
-          command: ./gradlew assemble bintrayUpload
+          command: ./gradlew assemble publish showVersion
       - save_cache:
           key: barista-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
