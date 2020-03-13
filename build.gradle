@@ -11,6 +11,7 @@ buildscript {
 		classpath "de.thetaphi:forbiddenapis:2.2"
 		classpath "de.aaschmid:gradle-cpd-plugin:1.0"
 		classpath "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE"
+		classpath "jp.classmethod.aws:gradle-aws-plugin:0.41"
 	}
 }
 
@@ -90,7 +91,8 @@ subprojects {
 	repositories {
 		jcenter()
 		mavenCentral()
-		maven { url "http://maven.xet.jp/release" } // for baseunits
+		maven { url "http://maven.classmethod.info/snapshot" } // for baseunits
+		maven { url "http://maven.classmethod.info/release" } // for baseunits
 	}
 	
 	dependencies {
@@ -104,9 +106,28 @@ subprojects {
 		testCompile "org.mockito:mockito-core"
 	}
 	
+	apply plugin: "jp.classmethod.aws"
+	aws {
+		profileName = null
+	}
 	
 	// ======== Publishing =======
 	publishing {
+		repositories {
+			maven {
+				def releasesRepoUrl = "${System.getenv("PUBLISH_REPOSITORY")}/release"
+				def snapshotsRepoUrl = "${System.getenv("PUBLISH_REPOSITORY")}/snapshot"
+				url version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+
+				credentials(AwsCredentials) {
+					def profileName = project.hasProperty("awsProfileForMetropolisRepo") ? project.awsProfileForMetropolisRepo : null
+					def cred = aws.newCredentialsProvider(profileName).credentials
+					accessKey cred.getAWSAccessKeyId()
+					secretKey cred.getAWSSecretKey()
+				}
+			}
+		}
+
 		publications {
 			mavenJava(MavenPublication) {
 				from components.java
