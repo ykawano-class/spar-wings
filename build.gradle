@@ -150,13 +150,6 @@ subprojects {
 								distribution "repo"
 							}
 						}
-						developers {
-							developer {
-								id "dai0304"
-								name "MIYAMOTO Daisuke"
-								email "dai.0304@gmail.com"
-							}
-						}
 					}
 				}
 			}

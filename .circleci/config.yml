@@ -181,7 +181,7 @@ jobs:
           path: spar-wings-thymeleaf-s3/build/test-results/
 
       - deploy:
-          name: Deploy bintray
+          name: Deploy artifacts
           command: ./gradlew assemble publish showVersion
       - save_cache:
           key: barista-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}

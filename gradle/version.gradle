@@ -12,11 +12,13 @@ buildscript {
 
 ext {
 	git = org.ajoberstar.grgit.Grgit.open(file('.'))
-	describedCommit = git.describe().toString().trim()
+	revision = git.head().abbreviatedId
 }
 
-version = describedCommit +
-	(describedCommit.matches(".*-[0-9]+-g[0-9a-f]{7}") ? "-SNAPSHOT" : "") +
+import java.text.SimpleDateFormat
+// LocalDateTime.now().format("yyyyMMdd") は参照できないと言われる...
+version = new SimpleDateFormat('yyyyMMdd').format(new Date()) + "-" + revision +
+	(git.branch.current.name != "master" ? "-SNAPSHOT" : "") +
 	(git.status().isClean() ? "" : "+dirty")
 
 task showVersion {
