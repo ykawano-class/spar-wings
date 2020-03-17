@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /app
     docker:
-      - image: java:openjdk-8-jdk
+      - image: classmethod/openjdk-with-git:8-jdk
       - image: redis:2.8.23
     environment:
       _JAVA_OPTIONS: -Xmx3G
@@ -181,10 +181,19 @@ jobs:
           path: spar-wings-thymeleaf-s3/build/test-results/
 
       - deploy:
-          name: Deploy bintray
-          command: ./gradlew assemble bintrayUpload
+          name: Deploy artifacts
+          command: ./gradlew assemble publish showVersion
       - save_cache:
           key: barista-{{ .Branch }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle.properties" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
             - "~/.gradle"
             - "~/.m2"
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
