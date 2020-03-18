@@ -60,7 +60,7 @@ public class SliceableHandlerMethodArgumentResolver implements HandlerMethodArgu
 	
 	private static final int DEFAULT_MAX_PAGE_SIZE = 2000;
 	
-	private static final int DEFAULT_PAGE_NUMBER = 1;
+	private static final int DEFAULT_PAGE_NUMBER = 0;
 	
 	static final Sliceable DEFAULT_SLICE_REQUEST = new SliceRequest(DEFAULT_PAGE_NUMBER, null, DEFAULT_MAX_PAGE_SIZE);
 	

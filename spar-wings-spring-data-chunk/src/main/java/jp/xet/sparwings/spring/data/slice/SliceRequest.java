@@ -28,7 +28,7 @@ public class SliceRequest implements Sliceable {
 	/** 
 	 * ページ番号. 
 	 * 
-	 * <p>1以上指定</p>
+	 * <p>0以上指定</p>
 	 */
 	private Integer pageNumber;
 	
@@ -49,6 +49,6 @@ public class SliceRequest implements Sliceable {
 		if (pageNumber == null || maxContentSize == null) {
 			return null;
 		}
-		return (pageNumber - 1) * maxContentSize;
+		return pageNumber * maxContentSize;
 	}
 }

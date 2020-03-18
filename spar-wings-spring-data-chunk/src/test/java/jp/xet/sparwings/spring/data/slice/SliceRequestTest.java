@@ -37,7 +37,19 @@ public class SliceRequestTest {
 		Integer actual = sut.getOffset();
 		
 		// verify
-		assertThat(actual, is((3 - 1) * 14));
+		assertThat(actual, is(3 * 14));
+	}
+	
+	@Test
+	public void testGetOffset_ZeroPageNumber() {
+		// setup
+		SliceRequest sut = new SliceRequest(0, Sort.Direction.ASC, 14);
+		
+		// exercise
+		Integer actual = sut.getOffset();
+		
+		// verify
+		assertThat(actual, is(0)); // 0 * 14
 	}
 	
 	@Test

@@ -39,7 +39,7 @@ public @interface SliceableDefault {
 	int value() default 10;
 	
 	/**
-	 * The default-size the injected {@link jp.xet.sparwings.spring.data.chunk.Chunkable} should get if no corresponding
+	 * The default-size the injected {@link jp.xet.sparwings.spring.data.slice.Sliceable} should get if no corresponding
 	 * parameter defined in request (default is 10).
 	 */
 	int size() default 10;
@@ -50,7 +50,7 @@ public @interface SliceableDefault {
 	Direction direction() default Direction.ASC;
 	
 	/**
-	 * The page number. Defaults to 1.
+	 * The page number. Defaults to 0.
 	 */
-	int pageNumber() default 1;
+	int pageNumber() default 0;
 }

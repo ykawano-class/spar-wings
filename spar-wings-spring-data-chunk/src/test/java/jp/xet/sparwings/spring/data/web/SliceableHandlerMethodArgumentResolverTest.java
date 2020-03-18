@@ -89,7 +89,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, Direction.ASC, 10);
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 10);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -114,7 +114,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, Direction.ASC, 123);
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -156,7 +156,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 123);
+		Sliceable expected = new SliceRequest(0, null, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -178,7 +178,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 123);
+		Sliceable expected = new SliceRequest(0, null, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -200,7 +200,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 123);
+		Sliceable expected = new SliceRequest(0, null, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -222,7 +222,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 2000); // 2000 を超えないこと
+		Sliceable expected = new SliceRequest(0, null, 2000); // 2000 を超えないこと
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -244,7 +244,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 2000); // 2000 を超えないこと
+		Sliceable expected = new SliceRequest(0, null, 2000); // 2000 を超えないこと
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -266,7 +266,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 1); // 強制的に 1
+		Sliceable expected = new SliceRequest(0, null, 1); // 強制的に 1
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -288,7 +288,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 2000); // 強制的に 2000
+		Sliceable expected = new SliceRequest(0, null, 2000); // 強制的に 2000
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -310,7 +310,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 10); // 強制的に 10
+		Sliceable expected = new SliceRequest(0, null, 10); // 強制的に 10
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -332,7 +332,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 123); // 強制的に default 値
+		Sliceable expected = new SliceRequest(0, null, 123); // 強制的に default 値
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -376,7 +376,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 2000);
+		Sliceable expected = new SliceRequest(0, null, 2000);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -420,7 +420,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, Direction.DESC, 2000);
+		Sliceable expected = new SliceRequest(0, Direction.DESC, 2000);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -442,7 +442,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(1, null, 2000);
+		Sliceable expected = new SliceRequest(0, null, 2000);
 		assertThat(actualSliceable, is(expected));
 	}
 	
