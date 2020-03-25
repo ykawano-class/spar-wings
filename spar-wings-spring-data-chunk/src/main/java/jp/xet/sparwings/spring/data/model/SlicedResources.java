@@ -30,13 +30,11 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jp.xet.sparwings.spring.data.slice.Slice;
@@ -49,18 +47,14 @@ import jp.xet.sparwings.spring.data.slice.Slice;
 @ToString
 @EqualsAndHashCode
 @XmlRootElement(name = "slicedEntities")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class SlicedResources<T> {
 	
 	@Getter
-	@Setter(AccessLevel.PACKAGE)
 	@XmlElement(name = "embedded")
 	@JsonProperty("_embedded")
-	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, Collection<T>> content;
 	
 	@Getter
-	@Setter(AccessLevel.PACKAGE)
 	@XmlElement(name = "page")
 	@JsonProperty("page")
 	private SliceMetadata metadata;

@@ -71,7 +71,7 @@ Repository の Sliceable パラメータで自動で設定するのは、
 です。
 
 ソート順は、ユニークになるように指定してください。
-例えば、`ORDER BY create_at ASC` にした場合、create_at が同じ値のレコードのソート順は不定です。
+例えば、`ORDER BY create_at ASC` にした場合、create_at が同じ値のレコードのソート順は不定の為、Sliceable で全ての値を取得することは保証できません。
 以下のように
 `ORDER BY create_at ASC, xxx_code ASC`
 ソート条件にユニークキーを含めるようにしてください(xxx_code が当該 table のユニークキーの前提です)。
@@ -95,5 +95,20 @@ WebMvcConfigurer の実装クラスで addArgumentResolvers を Override し、
 	* Slice のリクエストを受け取る場合
 
 インスタンスを add してください。
+
+イメージは以下の通りです。
+
+```java
+@Configuration
+public class WebMvcConfiguration implements WebMvcConfigurer {
+
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		argumentResolvers.add(new ChunkableHandlerMethodArgumentResolver());
+		argumentResolvers.add(new SliceableHandlerMethodArgumentResolver());
+	}
+}
+```
+
 Controller の引数 Chunkable / Sliceable に `@ChunkableDefault` / `@SliceableDefault` を付与することで、
 リクエストが未指定の時に defalut 値を設定したインスタンスを生成します。
