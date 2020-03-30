@@ -17,6 +17,8 @@ package jp.xet.sparwings.spring.data.slice;
 
 import org.springframework.data.domain.Sort.Direction;
 
+import jp.xet.sparwings.spring.data.exceptions.InvalidSliceableException;
+
 /**
  * Abstract interface for value-based pagination information.
  */
@@ -45,4 +47,11 @@ public interface Sliceable {
 	 * @return offset(計算できない場合、null)
 	 */
 	Integer getOffset();
+	
+	/**
+	 * validate 処理.
+	 * 
+	 * @throws InvalidSliceableException 不正な Sliceable だった場合
+	 */
+	void validate();
 }

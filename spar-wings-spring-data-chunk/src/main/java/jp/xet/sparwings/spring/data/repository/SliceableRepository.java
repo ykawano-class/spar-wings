@@ -20,6 +20,7 @@ import java.io.Serializable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import jp.xet.sparwings.spring.data.exceptions.InvalidSliceableException;
 import jp.xet.sparwings.spring.data.slice.Slice;
 import jp.xet.sparwings.spring.data.slice.Sliceable;
 
@@ -39,6 +40,7 @@ public interface SliceableRepository<E, ID extends Serializable>extends Readable
 	 * @return a slice of entities
 	 * @throws DataAccessException データアクセスエラーが発生した場合
 	 * @throws NullPointerException 引数に{@code null}を与えた場合
+	 * @throws InvalidSliceableException 不正な Sliceable だった場合
 	 */
 	Slice<E> findAll(Sliceable sliceable);
 	

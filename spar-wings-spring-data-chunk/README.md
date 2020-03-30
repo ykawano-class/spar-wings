@@ -76,6 +76,10 @@ Repository の Sliceable パラメータで自動で設定するのは、
 `ORDER BY create_at ASC, xxx_code ASC`
 ソート条件にユニークキーを含めるようにしてください(xxx_code が当該 table のユニークキーの前提です)。
 
+先頭から offset までの読み飛ばし件数が多くなることで API のパフォーマンス劣化を引き起こす可能性が高くなる為、
+部分集合の先頭から 2000 件を超えて取得できないように制限します。
+具体的には Sliceable パラメータの内容が `page_number * size + size > 2000` の場合、不正リクエストとみなし、InvalidSliceableException を throw します。
+
 ### INDEX 設計
 
 MySQL の場合、

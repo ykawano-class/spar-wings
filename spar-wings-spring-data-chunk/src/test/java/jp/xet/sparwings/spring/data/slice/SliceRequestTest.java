@@ -15,13 +15,14 @@
  */
 package jp.xet.sparwings.spring.data.slice;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import org.springframework.data.domain.Sort;
 
 import org.junit.Test;
+
+import jp.xet.sparwings.spring.data.exceptions.InvalidSliceableException;
 
 /**
  * Test for {@link SliceRequest}
@@ -37,7 +38,7 @@ public class SliceRequestTest {
 		Integer actual = sut.getOffset();
 		
 		// verify
-		assertThat(actual, is(3 * 14));
+		assertThat(actual).isEqualTo(3 * 14);
 	}
 	
 	@Test
@@ -49,7 +50,7 @@ public class SliceRequestTest {
 		Integer actual = sut.getOffset();
 		
 		// verify
-		assertThat(actual, is(0)); // 0 * 14
+		assertThat(actual).isEqualTo(0); // 0 * 14
 	}
 	
 	@Test
@@ -61,6 +62,63 @@ public class SliceRequestTest {
 		Integer actual = sut.getOffset();
 		
 		// verify
-		assertThat(actual, is(nullValue()));
+		assertThat(actual).isNull();
+	}
+	
+	@Test
+	public void testValidate_NullPageNumber_ISE() {
+		// setup
+		SliceRequest sut = new SliceRequest(null, Sort.Direction.ASC, null);
+		
+		// exercise
+		Throwable actual = catchThrowable(sut::validate);
+		
+		// verify
+		assertThat(actual).isInstanceOfSatisfying(InvalidSliceableException.class,
+				e -> assertThat(e.getMessage()).isEqualTo("pageNumber must be not null."));
+	}
+	
+	@Test
+	public void testValidate_NullMaxContentSize_ISE() {
+		// setup
+		SliceRequest sut = new SliceRequest(0, Sort.Direction.ASC, null);
+		
+		// exercise
+		Throwable actual = catchThrowable(sut::validate);
+		
+		// verify
+		assertThat(actual).isInstanceOfSatisfying(InvalidSliceableException.class,
+				e -> assertThat(e.getMessage()).isEqualTo("maxContentSize must be not null."));
+	}
+	
+	@Test
+	public void testValidate_OverMaxTotalContentLimit_ISE() {
+		// setup
+		SliceRequest sut = new SliceRequest(0, Sort.Direction.ASC, 2001); // 0 * 2001 + 2001
+		
+		// exercise
+		Throwable actual = catchThrowable(sut::validate);
+		
+		// verify
+		assertThat(actual).isInstanceOfSatisfying(InvalidSliceableException.class,
+				e -> assertThat(e.getMessage()).isEqualTo("Cannot get elements beyond 2000."));
+	}
+	
+	@Test
+	public void testValidate_SameMaxTotalContentLimit() {
+		// setup
+		SliceRequest sut = new SliceRequest(1, Sort.Direction.ASC, 1000); // 1 * 1000 + 1000
+		
+		// exercise
+		sut.validate(); // 例外が起きないこと
+	}
+	
+	@Test
+	public void testValidate_LessThanMaxTotalContentLimit() {
+		// setup
+		SliceRequest sut = new SliceRequest(5, Sort.Direction.ASC, 200); // 5 * 200 + 200
+		
+		// exercise
+		sut.validate(); // 例外が起きないこと
 	}
 }

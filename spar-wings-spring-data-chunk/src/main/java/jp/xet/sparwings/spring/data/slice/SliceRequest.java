@@ -19,11 +19,22 @@ import lombok.Value;
 
 import org.springframework.data.domain.Sort.Direction;
 
+import jp.xet.sparwings.spring.data.exceptions.InvalidSliceableException;
+
 /**
  * Basic Java Bean implementation of {@code Sliceable}.
  */
 @Value
 public class SliceRequest implements Sliceable {
+	
+	/** 
+	 * 取得可能な最大要素数.
+	 * 
+	 * <p>
+	 * この件数を超えて要素を取得することはできません。
+	 * </p>
+	 */
+	private static final int MAX_TOTAL_CONTENT_LIMIT = 2000;
 	
 	/** 
 	 * ページ番号. 
@@ -50,5 +61,20 @@ public class SliceRequest implements Sliceable {
 			return null;
 		}
 		return pageNumber * maxContentSize;
+	}
+	
+	@Override
+	public void validate() {
+		
+		if (pageNumber == null) {
+			throw new InvalidSliceableException("pageNumber must be not null.");
+		}
+		if (maxContentSize == null) {
+			throw new InvalidSliceableException("maxContentSize must be not null.");
+		}
+		
+		if (pageNumber * maxContentSize + maxContentSize > MAX_TOTAL_CONTENT_LIMIT) {
+			throw new InvalidSliceableException("Cannot get elements beyond 2000.");
+		}
 	}
 }
