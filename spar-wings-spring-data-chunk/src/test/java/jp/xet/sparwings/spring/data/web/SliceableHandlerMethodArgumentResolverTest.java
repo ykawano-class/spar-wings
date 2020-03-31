@@ -15,6 +15,7 @@
  */
 package jp.xet.sparwings.spring.data.web;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -36,6 +37,7 @@ import org.junit.Test;
 
 import jp.xet.sparwings.spring.data.slice.SliceRequest;
 import jp.xet.sparwings.spring.data.slice.Sliceable;
+import jp.xet.sparwings.spring.web.httpexceptions.HttpBadRequestException;
 
 /**
  * Test for {@link SliceableHandlerMethodArgumentResolver}.
@@ -343,7 +345,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		MethodParameter methodParametere = new MethodParameter(method, 0);
 		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
 		NativeWebRequest webRequest = mock(NativeWebRequest.class);
-		when(webRequest.getParameter(eq("page_number"))).thenReturn("100");
+		when(webRequest.getParameter(eq("page_number"))).thenReturn("0");
 		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
 		
 		// exercise
@@ -354,8 +356,28 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(100, null, 2000);
+		Sliceable expected = new SliceRequest(0, null, 2000);
 		assertThat(actualSliceable, is(expected));
+	}
+	
+	@Test
+	public void testDefaultHandlerWithValueWithPageNumberParameter_Over() throws Exception {
+		// setup
+		Method method = getClass().getMethod("simpleHandler", Sliceable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		when(webRequest.getParameter(eq("page_number"))).thenReturn("1"); // over
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Throwable actual =
+				catchThrowable(() -> sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory));
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(HttpBadRequestException.class)));
+		assertThat(actual.getMessage(), is("Cannot get elements beyond 2000."));
 	}
 	
 	@Test

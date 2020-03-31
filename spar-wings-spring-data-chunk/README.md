@@ -78,7 +78,13 @@ Repository の Sliceable パラメータで自動で設定するのは、
 
 先頭から offset までの読み飛ばし件数が多くなることで API のパフォーマンス劣化を引き起こす可能性が高くなる為、
 部分集合の先頭から 2000 件を超えて取得できないように制限します。
-具体的には Sliceable パラメータの内容が `page_number * size + size > 2000` の場合、不正リクエストとみなし、InvalidSliceableException を throw します。
+具体的には Sliceable パラメータの内容が `page_number * size + size > 2000` の場合、不正リクエストとみなし、
+
+* Controller の引数に Sliceable を設定した時には HttpBadRequestException
+* Repository メソッド呼び出し時には InvalidSliceableException
+	* Controller の引数に Sliceable を設定しない場合はハンドリングをしてください
+
+を throw します。
 
 ### INDEX 設計
 

@@ -33,8 +33,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import jp.xet.sparwings.spring.data.exceptions.InvalidSliceableException;
 import jp.xet.sparwings.spring.data.slice.SliceRequest;
 import jp.xet.sparwings.spring.data.slice.Sliceable;
+import jp.xet.sparwings.spring.web.httpexceptions.HttpBadRequestException;
 
 /**
  * Extracts paging information from web requests and thus allows injecting {@link Sliceable} instances into controller
@@ -171,7 +173,14 @@ public class SliceableHandlerMethodArgumentResolver implements HandlerMethodArgu
 				log.trace("invalid page number: {}", pageNumberString);
 			}
 		}
-		return new SliceRequest(pageNumber, direction, pageSize);
+		
+		Sliceable sliceable = new SliceRequest(pageNumber, direction, pageSize);
+		try {
+			sliceable.validate();
+		} catch (InvalidSliceableException e) {
+			throw new HttpBadRequestException(e.getMessage(), e);
+		}
+		return sliceable;
 	}
 	
 	private Sliceable getDefaultFromAnnotationOrFallback(MethodParameter methodParameter) {
