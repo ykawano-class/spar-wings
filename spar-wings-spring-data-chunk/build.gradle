@@ -10,5 +10,5 @@ dependencies {
 	compileOnly "org.springframework:spring-tx"
 	
 	testCompile "com.fasterxml.jackson.core:jackson-databind"
-	testCompile "com.jayway.jsonpath:json-path-assert:2.2.0"
+	testCompile "com.jayway.jsonpath:json-path-assert:2.4.0"
 }
