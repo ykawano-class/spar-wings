@@ -80,7 +80,7 @@ public class SqsMessagePollerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		sut = new SqsMessagePoller(sqs, retry, Q_URL, messageHandler);
+		sut = new SqsMessagePoller(sqs, retry, Q_URL, messageHandler, "testHandler");
 		sut.setVisibilityTimeout(10);
 		sut.setChangeVisibilityThreshold(1);
 	}
@@ -315,5 +315,19 @@ public class SqsMessagePollerTest {
 		verify(messageHandler).accept(eq(msg1));
 		verify(sqs, never()).deleteMessage(eq(expectedDmr));
 		verify(sqs).changeMessageVisibility(any(ChangeMessageVisibilityRequest.class));
+	}
+	
+	@Test
+	public void test_ReceiveMessageFailed() throws Exception {
+		// setup
+		when(sqs.receiveMessage(any(ReceiveMessageRequest.class)))
+			.thenThrow(new RuntimeException());
+		// exercise
+		sut.loop();
+		// verify
+		verify(sqs).receiveMessage(any(ReceiveMessageRequest.class));
+		verify(messageHandler, never()).accept(any(Message.class));
+		verify(sqs, never()).deleteMessage(any(DeleteMessageRequest.class));
+		verify(sqs, never()).changeMessageVisibility(any(ChangeMessageVisibilityRequest.class));
 	}
 }

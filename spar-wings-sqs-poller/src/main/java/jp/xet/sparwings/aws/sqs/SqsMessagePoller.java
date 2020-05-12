@@ -27,7 +27,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,14 +43,13 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 
 /**
- * TODO for daisuke
+ * SQS をポーリングして受け取ったメッセージに対してハンドラの処理を行う
  * 
  * @since 0.3
  * @version $Id$
  * @author daisuke
  */
 @Slf4j
-@RequiredArgsConstructor
 public class SqsMessagePoller { // NOPMD - cc
 	
 	@Getter
@@ -65,6 +63,13 @@ public class SqsMessagePoller { // NOPMD - cc
 	
 	@Getter
 	private final Consumer<Message> messageHandler;
+	
+	/**
+	 * メッセージハンドラーの名称（ログ出力用）
+	 *
+	 * <p>この SqsMessagePoller のインスタンスが具体的にどのような処理を行うのかが判断できる文字列を指定します</p>
+	 */
+	private String handlerName;
 	
 	@Getter
 	@Setter
@@ -96,22 +101,53 @@ public class SqsMessagePoller { // NOPMD - cc
 	
 	
 	/**
+	 * コンストラクタ
+	 */
+	public SqsMessagePoller(AmazonSQS sqs, RetryTemplate retry, String workerQueueUrl, Consumer<Message> messageHandler,
+			String handlerName) {
+		this.sqs = sqs;
+		this.retry = retry;
+		this.workerQueueUrl = workerQueueUrl;
+		this.messageHandler = messageHandler;
+		this.handlerName = handlerName;
+	}
+	
+	/**
+	 * コンストラクタ
+	 *
+	 * @deprecated handlerName を初期化するコンストラクタの利用を推奨
+	 */
+	public SqsMessagePoller(AmazonSQS sqs, RetryTemplate retry, String workerQueueUrl,
+			Consumer<Message> messageHandler) {
+		this.sqs = sqs;
+		this.retry = retry;
+		this.workerQueueUrl = workerQueueUrl;
+		this.messageHandler = messageHandler;
+	}
+	
+	/**
 	 * TODO for daisuke
 	 * 
 	 * @since 0.3
 	 */
 	@Scheduled(fixedDelay = 1) // SUPPRESS CHECKSTYLE bug?
 	public void loop() { // NOPMD - cc
-		List<Message> messages = reveiveMessages();
-		if (messages.isEmpty()) {
-			log.trace("No SQS message received");
-			return;
+		try {
+			List<Message> messages = receiveMessages();
+			if (messages.isEmpty()) {
+				log.trace("No SQS message received for {}", handlerName);
+				return;
+			}
+			log.debug("{} SQS messages are received for {}", messages.size(), handlerName);
+			messages.stream().parallel().forEach(this::handleMessage);
+		} catch (Throwable e) { // NOPMD
+			log.error("Exception occurred while processing Handler: {}. Error Message: {}", handlerName, e.getMessage(),
+					e);
+			// このメソッドは明示的に呼び出されず例外をハンドリングできないのでログをはいて例外を握り潰す
 		}
-		log.debug("{} SQS messages are received", messages.size());
-		messages.stream().parallel().forEach(this::handleMessage);
 	}
 	
-	private List<Message> reveiveMessages() {
+	private List<Message> receiveMessages() {
 		ReceiveMessageResult receiveMessageResult;
 		try {
 			log.trace("Start SQS long polling");
@@ -134,11 +170,11 @@ public class SqsMessagePoller { // NOPMD - cc
 	}
 	
 	private void handleMessage(Message message) {
-		log.info("SQS message was recieved: {}", message.getMessageId());
-		log.debug("Receive SQS:{} C:{} RHD:{}",
+		log.info("SQS message for {} was received: {}", handlerName, message.getMessageId());
+		log.debug("Receive SQS: {} C: {} RHD: {}",
 				message.getMessageId(),
 				message.getAttributes().get("ApproximateReceiveCount"),
-				computeReceptHandleDigest(message));
+				computeReceiptHandleDigest(message));
 		
 		Future<Message> future = executor.submit(() -> messageHandler.accept(message), message);
 		log.debug("Main task for {} is submitted", message.getMessageId());
@@ -152,14 +188,14 @@ public class SqsMessagePoller { // NOPMD - cc
 			retry.execute(context -> {
 				try {
 					future.get(changeVisibilityThreshold, TimeUnit.SECONDS);
-					log.debug("Job for SQS:{} was done", message.getMessageId());
+					log.debug("Job for SQS: {} was done", message.getMessageId());
 					sqs.deleteMessage(new DeleteMessageRequest(workerQueueUrl, message.getReceiptHandle()));
-					log.info("SQS:{} was deleted", message.getMessageId());
+					log.info("SQS: {} was deleted", message.getMessageId());
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
-					log.warn("Job for SQS:{} was interrupted", message.getMessageId());
+					log.warn("Job for SQS: {} was interrupted", message.getMessageId());
 				} catch (ExecutionException e) { // handle e.getCause()
-					log.error("Job for SQS:{} was failed", message.getMessageId(), e.getCause());
+					log.error("Job for SQS: {} was failed", message.getMessageId(), e.getCause());
 				} catch (TimeoutException e) { // we need more time
 					extendTimeout(message);
 					throw e;
@@ -173,20 +209,20 @@ public class SqsMessagePoller { // NOPMD - cc
 	}
 	
 	private void extendTimeout(Message message) {
-		log.debug("Job for SQS:{} was timeout RHD:{}", message.getMessageId(), computeReceptHandleDigest(message));
+		log.debug("Job for SQS:{} was timeout RHD:{}", message.getMessageId(), computeReceiptHandleDigest(message));
 		sqs.changeMessageVisibility(new ChangeMessageVisibilityRequest(
 				workerQueueUrl, message.getReceiptHandle(), visibilityTimeout));
 		if (log.isDebugEnabled()) {
-			log.debug("Visibility for SQS:{} was updated VT:{}", message.getMessageId(), visibilityTimeout);
+			log.debug("Visibility for SQS: {} was updated VT: {}", message.getMessageId(), visibilityTimeout);
 		} else if (log.isTraceEnabled()) {
-			log.trace("Visibility for SQS:{} was updated VT:{} RHD:{}",
+			log.trace("Visibility for SQS: {} was updated VT: {} RHD: {}",
 					message.getMessageId(),
 					visibilityTimeout,
-					computeReceptHandleDigest(message));
+					computeReceiptHandleDigest(message));
 		}
 	}
 	
-	private Object computeReceptHandleDigest(Message message) {
+	private Object computeReceiptHandleDigest(Message message) {
 		return new Object() {
 			
 			@Override
