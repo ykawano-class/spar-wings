@@ -27,13 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
 /**
- * TODO for daisuke
+ * Spring のイベントリスナーの仕組みを使って SNS にイベント通知を行う
  * 
  * @since 0.16
  * @author daisuke
@@ -42,6 +44,10 @@ import com.google.common.base.Strings;
 public class SWEventListener implements ApplicationListener<SWEvent> {
 	
 	private static Logger logger = LoggerFactory.getLogger(SWEventListener.class);
+	
+	private static final String EVENT_TYPE_KEY = "event_type";
+	
+	private static final String MESSAGE_ATTRIBUTE_DATATYPE_STRING = "String";
 	
 	@Getter
 	private final AmazonSNS sns;
@@ -64,9 +70,8 @@ public class SWEventListener implements ApplicationListener<SWEvent> {
 		}
 		try {
 			String message = objectMapper.writeValueAsString(event);
-			PublishResult publishResult = sns.publish(new PublishRequest()
-				.withTargetArn(eventTopicArn)
-				.withMessage(message));
+			String eventType = event.getEventType();
+			PublishResult publishResult = publish(eventType, message);
 			logger.info("SWEvent {} was published: {}", event.getEventType(), publishResult.getMessageId());
 		} catch (Exception e) { // NOPMD
 			if (exceptionHandler != null) {
@@ -74,6 +79,21 @@ public class SWEventListener implements ApplicationListener<SWEvent> {
 			} else {
 				logger.error("Unexpected exception", e);
 			}
+		}
+	}
+	
+	private PublishResult publish(String eventType, String message) {
+		if (Strings.isNullOrEmpty(eventType)) {
+			return sns.publish(new PublishRequest()
+				.withTargetArn(eventTopicArn)
+				.withMessage(message));
+		} else {
+			return sns.publish(new PublishRequest()
+				.withTargetArn(eventTopicArn)
+				.withMessageAttributes(ImmutableMap.of(EVENT_TYPE_KEY,
+						new MessageAttributeValue().withDataType(MESSAGE_ATTRIBUTE_DATATYPE_STRING)
+							.withStringValue(eventType)))
+				.withMessage(message));
 		}
 	}
 }
