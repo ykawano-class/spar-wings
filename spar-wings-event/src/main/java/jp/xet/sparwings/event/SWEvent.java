@@ -37,8 +37,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * TODO for daisuke
- * 
+ * SNS のイベント通知自体を表すクラス
+ *
+ * <p>本クラスをシリアライズした値が SWEventListener によって SNS に通知される</p>
+ *
  * @since 0.16
  * @author daisuke
  */
