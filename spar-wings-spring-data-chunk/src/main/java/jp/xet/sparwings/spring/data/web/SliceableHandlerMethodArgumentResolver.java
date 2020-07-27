@@ -162,7 +162,10 @@ public class SliceableHandlerMethodArgumentResolver implements HandlerMethodArgu
 		// Limit upper bound
 		pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 		
-		Direction direction = Direction.fromOptionalString(directionString).orElse(null);
+		// Direction の優先度は
+		// 1. パラメータの direction
+		// 2. @SliceableDefault の direction
+		Direction direction = Direction.fromOptionalString(directionString).orElse(defaultOrFallback.getDirection());
 		
 		Integer pageNumber =
 				defaultOrFallback.getPageNumber() != null ? defaultOrFallback.getPageNumber() : DEFAULT_PAGE_NUMBER;

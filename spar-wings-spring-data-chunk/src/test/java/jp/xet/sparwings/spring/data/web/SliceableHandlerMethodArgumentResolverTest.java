@@ -180,7 +180,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(0, null, 123);
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -202,7 +202,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(0, null, 123);
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 123);
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -246,7 +246,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(0, null, 2000); // 2000 を超えないこと
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 2000); // 2000 を超えないこと
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -312,7 +312,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(0, null, 10); // 強制的に 10
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 10); // 強制的に 10
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -334,7 +334,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(0, null, 123); // 強制的に default 値
+		Sliceable expected = new SliceRequest(0, Direction.ASC, 123); // 強制的に default 値
 		assertThat(actualSliceable, is(expected));
 	}
 	
@@ -543,6 +543,28 @@ public class SliceableHandlerMethodArgumentResolverTest {
 	}
 	
 	@Test
+	public void testDefaultHandlerWithFullValue_WithOneParameter() throws Exception {
+		// setup
+		Method method = getClass().getMethod("defaultHandlerWithFullValue", Sliceable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		when(webRequest.getParameter(eq("page_number"))).thenReturn("1");
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Object actual = sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory);
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(Sliceable.class)));
+		Sliceable actualSliceable = (Sliceable) actual;
+		
+		Sliceable expected = new SliceRequest(1, Direction.DESC, 10);
+		assertThat(actualSliceable, is(expected));
+	}
+	
+	@Test
 	public void testDefaultHandlerWithFullValue_WithInvalidParameter() throws Exception {
 		// setup
 		Method method = getClass().getMethod("defaultHandlerWithFullValue", Sliceable.class);
@@ -562,7 +584,7 @@ public class SliceableHandlerMethodArgumentResolverTest {
 		assertThat(actual, is(instanceOf(Sliceable.class)));
 		Sliceable actualSliceable = (Sliceable) actual;
 		
-		Sliceable expected = new SliceRequest(2, null, 10);
+		Sliceable expected = new SliceRequest(2, Direction.DESC, 10);
 		assertThat(actualSliceable, is(expected));
 	}
 }
