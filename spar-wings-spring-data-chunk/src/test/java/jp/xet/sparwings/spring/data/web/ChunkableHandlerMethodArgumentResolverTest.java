@@ -185,7 +185,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
 		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
 		assertThat(actualChunkable.getMaxPageSize(), is(123));
-		assertThat(actualChunkable.getDirection(), is(nullValue()));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC)); // ChunkableDefault の direction の初期値は ASC
 	}
 	
 	@Test
@@ -207,7 +207,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
 		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
 		assertThat(actualChunkable.getMaxPageSize(), is(123));
-		assertThat(actualChunkable.getDirection(), is(nullValue()));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC)); // ChunkableDefault の direction の初期値は ASC
 	}
 	
 	@Test
@@ -251,7 +251,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
 		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
 		assertThat(actualChunkable.getMaxPageSize(), is(2000));
-		assertThat(actualChunkable.getDirection(), is(nullValue()));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC)); // ChunkableDefault の direction の初期値は ASC
 	}
 	
 	@Test
@@ -317,7 +317,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
 		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
 		assertThat(actualChunkable.getMaxPageSize(), is(10));
-		assertThat(actualChunkable.getDirection(), is(nullValue()));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC)); // ChunkableDefault の direction の初期値は ASC
 	}
 	
 	@Test
@@ -339,7 +339,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
 		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
 		assertThat(actualChunkable.getMaxPageSize(), is(123));
-		assertThat(actualChunkable.getDirection(), is(nullValue()));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC)); // ChunkableDefault の direction の初期値は ASC
 	}
 	
 	@Test
@@ -476,4 +476,130 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		assertThat(actualChunkable.getMaxPageSize(), is(10));
 		assertThat(actualChunkable.getDirection(), is(Direction.DESC));
 	}
+	
+	// direction に初期値を指定した時の振る舞い
+	
+	public void defaultHandlerWithInitValue(
+			@ChunkableDefault(size = 12, direction = Direction.DESC) Chunkable chunkable) {
+		// nothing to do
+	}
+	
+	/**
+	 * size と next 指定.
+	 * @throws Exception 例外
+	 */
+	@Test
+	public void testDefaultHandlerWithInitValue_WithSizeNextParameter() throws Exception {
+		// setup
+		Method method = getClass().getMethod("defaultHandlerWithInitValue", Chunkable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		// size と next 指定
+		when(webRequest.getParameter(eq("size"))).thenReturn("1234");
+		when(webRequest.getParameter(eq("next"))).thenReturn("next_token");
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Object actual = sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory);
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(Chunkable.class)));
+		Chunkable actualChunkable = (Chunkable) actual;
+		
+		assertThat(actualChunkable.getPaginationRelation(), is(PaginationRelation.NEXT));
+		assertThat(actualChunkable.getPaginationToken(), is("next_token"));
+		assertThat(actualChunkable.getMaxPageSize(), is(1234));
+		// defaultHandlerWithInitValue に付与した ChunkableDefault の direction の初期値は DESC
+		assertThat(actualChunkable.getDirection(), is(Direction.DESC));
+	}
+	
+	/**
+	 * prev と direction 指定.
+	 * @throws Exception 例外
+	 */
+	@Test
+	public void testDefaultHandlerWithInitValue_WithPrevDirectionParameter() throws Exception {
+		// setup
+		Method method = getClass().getMethod("defaultHandlerWithInitValue", Chunkable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		// size と next 指定
+		when(webRequest.getParameter(eq("direction"))).thenReturn(Direction.DESC.name());
+		when(webRequest.getParameter(eq("prev"))).thenReturn("prev_token");
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Object actual = sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory);
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(Chunkable.class)));
+		Chunkable actualChunkable = (Chunkable) actual;
+		
+		assertThat(actualChunkable.getPaginationRelation(), is(PaginationRelation.PREV));
+		assertThat(actualChunkable.getPaginationToken(), is("prev_token"));
+		assertThat(actualChunkable.getMaxPageSize(), is(12));
+		assertThat(actualChunkable.getDirection(), is(Direction.DESC));
+	}
+	
+	/**
+	 * direction 指定.
+	 * @throws Exception 例外
+	 */
+	@Test
+	public void testDefaultHandlerWithInitValue_WithDirectionParameter() throws Exception {
+		// setup
+		Method method = getClass().getMethod("defaultHandlerWithInitValue", Chunkable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		when(webRequest.getParameter(eq("direction"))).thenReturn(Direction.ASC.name());
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Object actual = sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory);
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(Chunkable.class)));
+		Chunkable actualChunkable = (Chunkable) actual;
+		
+		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
+		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
+		assertThat(actualChunkable.getMaxPageSize(), is(12));
+		assertThat(actualChunkable.getDirection(), is(Direction.ASC));
+	}
+	
+	/**
+	 * クエリパラメータ未指定.
+	 * 
+	 * @throws Exception 例外
+	 */
+	@Test
+	public void testDefaultHandlerWithInitValue_NoParameter() throws Exception {
+		// setup
+		Method method = getClass().getMethod("defaultHandlerWithInitValue", Chunkable.class);
+		MethodParameter methodParametere = new MethodParameter(method, 0);
+		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
+		NativeWebRequest webRequest = mock(NativeWebRequest.class);
+		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
+		
+		// exercise
+		Object actual = sut.resolveArgument(methodParametere, mavContainer, webRequest, binderFactory);
+		
+		// verify
+		assertThat(actual, is(notNullValue()));
+		assertThat(actual, is(instanceOf(Chunkable.class)));
+		Chunkable actualChunkable = (Chunkable) actual;
+		
+		// `@ChunkableDefault` の初期値が使用される
+		assertThat(actualChunkable.getPaginationRelation(), is(nullValue()));
+		assertThat(actualChunkable.getPaginationToken(), is(nullValue()));
+		assertThat(actualChunkable.getMaxPageSize(), is(12));
+		assertThat(actualChunkable.getDirection(), is(Direction.DESC));
+	}
+	
 }

@@ -187,7 +187,7 @@ public class ChunkableHandlerMethodArgumentResolver implements HandlerMethodArgu
 		// Limit upper bound
 		pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 		
-		Direction direction = Direction.fromOptionalString(directionString).orElse(null);
+		Direction direction = Direction.fromOptionalString(directionString).orElse(defaultOrFallback.getDirection());
 		
 		if (StringUtils.hasText(next)) {
 			return new ChunkRequest(next, PaginationRelation.NEXT, pageSize, direction);
