@@ -526,7 +526,7 @@ public class ChunkableHandlerMethodArgumentResolverTest {
 		MethodParameter methodParametere = new MethodParameter(method, 0);
 		ModelAndViewContainer mavContainer = mock(ModelAndViewContainer.class);
 		NativeWebRequest webRequest = mock(NativeWebRequest.class);
-		// size と next 指定
+		// prev と direction 指定
 		when(webRequest.getParameter(eq("direction"))).thenReturn(Direction.DESC.name());
 		when(webRequest.getParameter(eq("prev"))).thenReturn("prev_token");
 		WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
