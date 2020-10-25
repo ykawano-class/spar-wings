@@ -8,7 +8,10 @@ dependencies {
 	compile "org.springframework:spring-web"
 	compile "org.springframework:spring-context"
 	compileOnly "org.springframework:spring-tx"
+	compile project(":spar-wings-httpexceptions")
 	
 	testCompile "com.fasterxml.jackson.core:jackson-databind"
 	testCompile "com.jayway.jsonpath:json-path-assert:2.4.0"
+	testCompile "org.skyscreamer:jsonassert:1.5.0"
+	testCompile "org.assertj:assertj-core"
 }
