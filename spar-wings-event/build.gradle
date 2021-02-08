@@ -8,5 +8,5 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-databind"
 	compile "jp.xet:baseunits:$baseunitsVersion"
 	
-	testCompile 'com.jayway.jsonpath:json-path-assert:2.4.0'
+	testCompile 'com.jayway.jsonpath:json-path-assert:2.5.0'
 }
