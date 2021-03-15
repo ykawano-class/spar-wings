@@ -18,7 +18,7 @@ dependencies {
 	compile "org.springframework.retry:spring-retry"
 	compile "org.springframework.data:spring-data-commons"
 	compile "org.springframework.data:spring-data-redis"
-	compile "redis.clients:jedis:2.5.2"
+	compile "redis.clients:jedis:3.5.2"
 	
 	compile "org.springframework.boot:spring-boot-autoconfigure"
 	
