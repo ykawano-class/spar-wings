@@ -6,7 +6,7 @@ buildscript {
 		maven { url "http://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath "com.diffplug.spotless:spotless-plugin-gradle:4.5.1"
+		classpath "com.diffplug.spotless:spotless-plugin-gradle:5.11.1"
 		classpath "de.thetaphi:forbiddenapis:3.0"
 		classpath "de.aaschmid:gradle-cpd-plugin:1.0"
 		classpath "io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE"
