@@ -17,16 +17,15 @@ package jp.xet.sparwings.aws.ec2;
 
 import java.io.IOException;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import org.slf4j.MDC;
 
@@ -39,7 +38,7 @@ import org.slf4j.MDC;
  * @author daisuke
  * @see ch.qos.logback.classic.helpers.MDCInsertingServletFilter
  */
-public class ExtendedMDCInsertingServletFilter extends OncePerRequestFilter {
+public class ExtendedMDCInsertingServletFilter implements Filter {
 	
 	static final String REQUEST_REMOTE_HOST_MDC_KEY = "remoteHost";
 	
@@ -66,9 +65,8 @@ public class ExtendedMDCInsertingServletFilter extends OncePerRequestFilter {
 	}
 	
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
 		try {
 			insertIntoMDC(request);
 			filterChain.doFilter(request, response);
