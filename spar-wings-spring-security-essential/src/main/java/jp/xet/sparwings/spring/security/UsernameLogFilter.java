@@ -20,13 +20,13 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.StringUtils;
 
 import org.slf4j.MDC;
 
@@ -36,7 +36,7 @@ import org.slf4j.MDC;
  * @since 0.3
  * @author daisuke
  */
-public class UsernameLogFilter extends OncePerRequestFilter {
+public class UsernameLogFilter implements Filter {
 	
 	private static final String USER_KEY = "username";
 	
@@ -47,8 +47,8 @@ public class UsernameLogFilter extends OncePerRequestFilter {
 	}
 	
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		Authentication auth = ctx.getAuthentication();
 		
@@ -74,7 +74,7 @@ public class UsernameLogFilter extends OncePerRequestFilter {
 	 * @return true id the user can be successfully registered
 	 */
 	private boolean registerUsername(String username) {
-		if (username != null && username.trim().isEmpty() == false) {
+		if (StringUtils.hasText(username)) {
 			MDC.put(USER_KEY, username);
 			return true;
 		}
